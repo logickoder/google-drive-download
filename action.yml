@@ -1,23 +1,32 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'g-drive-download'
+description: 'Download files from Google Drive'
+author: 'Jeffery Orazulike'
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: 'heart'
-  color: 'red'
+  icon: 'archive'
+  color: 'green'
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
+  credentials:
+    description: 'the service account credentials'
     required: true
-    default: '1000'
-
-# Define your outputs here.
-outputs:
-  time:
-    description: 'Your output description here'
+  filename:
+    description:
+      'the name of the file you want to upload. Wildcards can be used to upload
+      more than one file. Either this or the fileId must be provided'
+    required: false
+  fileId:
+    description:
+      'the Id of the file you want to download. Either this or the filename must be provided'
+    required: false
+  folderId:
+    description: 'the Id of the parent folder you want to upload the file in'
+    required: true
+  destination:
+    description: 'the path to save the file to'
+    required: true
 
 runs:
   using: node20

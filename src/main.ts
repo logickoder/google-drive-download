@@ -8,8 +8,10 @@ export async function run(): Promise<void> {
     // Get inputs
     const filename = core.getInput(inputs.filename)
     const fileId = core.getInput(inputs.fileId)
-    const folderId = core.getInput(inputs.folderId)
-    const downloadLocation = core.getInput(inputs.downloadLocation, {
+    const folderId = core.getInput(inputs.folderId, {
+      required: true
+    })
+    const destination = core.getInput(inputs.destination, {
       required: true
     })
 
@@ -53,7 +55,7 @@ export async function run(): Promise<void> {
 
     // download the files
     for (const file of files) {
-      await downloadFile(drive, file, downloadLocation)
+      await downloadFile(drive, file, destination)
     }
   } catch (error) {
     // Fail the workflow run if an error occurs
@@ -67,5 +69,5 @@ export const inputs = {
   fileId: 'fileId',
   folderId: 'folderId',
   credentials: 'credentials',
-  downloadLocation: 'downloadLocation'
+  destination: 'destination'
 }
