@@ -1,26 +1,71 @@
 import * as core from '@actions/core'
-import { wait } from './wait'
+import * as google from '@googleapis/drive'
+import downloadFile from './download-file'
+import findFiles from './find-files'
 
-/**
- * The main function for the action.
- * @returns {Promise<void>} Resolves when the action is complete.
- */
 export async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
+    // Get inputs
+    const filename = core.getInput(inputs.filename)
+    const fileId = core.getInput(inputs.fileId)
+    const folderId = core.getInput(inputs.folderId)
+    const downloadLocation = core.getInput(inputs.downloadLocation, {
+      required: true
+    })
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    const credentials = core.getInput(inputs.credentials, { required: true })
+    core.setSecret(credentials)
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    const drive = google.drive({
+      version: 'v3',
+      auth:
+        credentials &&
+        new google.auth.GoogleAuth({
+          credentials: JSON.parse(credentials),
+          scopes: [inputs.scope]
+        })
+    })
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    const files = Array<google.drive_v3.Schema$File>()
+
+    // if no file id is provided, search for the file
+    if (!fileId) {
+      if (!filename) {
+        core.setFailed(
+          `Either ${inputs.filename} or ${inputs.fileId} must be provided`
+        )
+        return
+      }
+      if (!folderId) {
+        core.setFailed(
+          `${inputs.folderId} must be provided to find ${filename}`
+        )
+        return
+      }
+      files.push(...((await findFiles(drive, folderId, filename)) || []))
+    } else {
+      const response = await drive.files.get({
+        fileId,
+        fields: 'id,name'
+      })
+      files.push(response.data)
+    }
+
+    // download the files
+    for (const file of files) {
+      await downloadFile(drive, file, downloadLocation)
+    }
   } catch (error) {
     // Fail the workflow run if an error occurs
-    if (error instanceof Error) core.setFailed(error.message)
+    core.setFailed(error as Error)
   }
+}
+
+export const inputs = {
+  scope: 'https://www.googleapis.com/auth/drive.file',
+  filename: 'filename',
+  fileId: 'fileId',
+  folderId: 'folderId',
+  credentials: 'credentials',
+  downloadLocation: 'downloadLocation'
 }
