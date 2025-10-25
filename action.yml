@@ -9,20 +9,37 @@ branding:
 
 # Define your inputs here.
 inputs:
+  authType:
+    description:
+      'authentication type: "service" for service account or "oauth" for OAuth2'
+    required: false
+    default: 'service'
   credentials:
-    description: 'the service account credentials'
-    required: true
+    description:
+      'the service account credentials (required for service auth type)'
+    required: false
+  clientId:
+    description: 'OAuth2 client ID (required for oauth auth type)'
+    required: false
+  clientSecret:
+    description: 'OAuth2 client secret (required for oauth auth type)'
+    required: false
+  refreshToken:
+    description: 'OAuth2 refresh token (required for oauth auth type)'
+    required: false
   filename:
     description:
-      'the name of the file you want to upload. Wildcards can be used to upload
-      more than one file. Either this or the fileId must be provided'
+      'the name of the file you want to download. Wildcards can be used to
+      download more than one file. Either this or the fileId must be provided'
     required: false
   fileId:
     description:
-      'the Id of the file you want to download. Either this or the filename must be provided'
+      'the Id of the file you want to download. Either this or the filename must
+      be provided'
     required: false
   folderId:
-    description: 'the Id of the parent folder you want to upload the file in'
+    description:
+      'the Id of the parent folder you want to search for the file in'
     required: true
   destination:
     description: 'the path to save the file to'

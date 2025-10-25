@@ -40,7 +40,7 @@ export default async function downloadFile(
     response.data.pipe(destinationStream)
 
     // Wait for it to finish
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       destinationStream.on('finish', resolve)
       destinationStream.on('error', reject)
     })

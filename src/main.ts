@@ -14,18 +14,48 @@ export async function run(): Promise<void> {
     const destination = core.getInput(inputs.destination, {
       required: true
     })
+    const authType = core.getInput(inputs.authType) || 'service'
 
-    const credentials = core.getInput(inputs.credentials, { required: true })
-    core.setSecret(credentials)
+    let auth
+
+    if (authType === 'oauth') {
+      // OAuth authentication
+      const clientId = core.getInput(inputs.clientId, { required: true })
+      const clientSecret = core.getInput(inputs.clientSecret, {
+        required: true
+      })
+      const refreshToken = core.getInput(inputs.refreshToken, {
+        required: true
+      })
+
+      core.setSecret(clientSecret)
+      core.setSecret(refreshToken)
+
+      const oauth2Client = new google.auth.OAuth2(clientId, clientSecret)
+      oauth2Client.setCredentials({
+        refresh_token: refreshToken
+      })
+      auth = oauth2Client
+    } else {
+      // Service account authentication (legacy)
+      const credentials = core.getInput(inputs.credentials)
+      if (!credentials) {
+        core.setFailed(
+          'credentials input is required when using service account authentication'
+        )
+        return
+      }
+      core.setSecret(credentials)
+
+      auth = new google.auth.GoogleAuth({
+        credentials: JSON.parse(credentials),
+        scopes: [inputs.scope]
+      })
+    }
 
     const drive = google.drive({
       version: 'v3',
-      auth:
-        credentials &&
-        new google.auth.GoogleAuth({
-          credentials: JSON.parse(credentials),
-          scopes: [inputs.scope]
-        })
+      auth
     })
 
     const files = Array<google.drive_v3.Schema$File>()
@@ -69,5 +99,9 @@ export const inputs = {
   fileId: 'fileId',
   folderId: 'folderId',
   credentials: 'credentials',
-  destination: 'destination'
+  destination: 'destination',
+  authType: 'authType',
+  clientId: 'clientId',
+  clientSecret: 'clientSecret',
+  refreshToken: 'refreshToken'
 }
