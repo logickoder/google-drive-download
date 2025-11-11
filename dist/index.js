@@ -48287,6 +48287,12 @@ function isGlobPattern(pattern) {
     return /[*?[\]{}]/.test(pattern);
 }
 /**
+ * Escape single quotes for Google Drive API queries
+ */
+function escapeQueryValue(value) {
+    return value.replace(/'/g, "\\'");
+}
+/**
  * Convert a glob pattern to a Google Drive API query
  * Returns a query string and a regex pattern for client-side filtering
  */
@@ -48303,27 +48309,24 @@ function globToQuery(pattern) {
         // *text* -> contains
         const text = pattern.slice(1, -1);
         if (!isGlobPattern(text)) {
-            driveQuery = `name contains '${text}'`;
+            driveQuery = `name contains '${escapeQueryValue(text)}'`;
         }
     }
     else if (pattern.startsWith('*')) {
         // *text -> ends with (not directly supported, we'll filter client-side)
-        driveQuery = 'name != null';
+        // Use trashed=false as a valid query that returns all non-trashed files
+        driveQuery = 'trashed=false';
     }
     else if (pattern.endsWith('*')) {
         // text* -> starts with (not directly supported, but we can use contains)
         const prefix = pattern.slice(0, -1);
         if (!isGlobPattern(prefix)) {
-            driveQuery = `name contains '${prefix}'`;
+            driveQuery = `name contains '${escapeQueryValue(prefix)}'`;
         }
-    }
-    else {
-        // Complex pattern - fetch all and filter client-side
-        driveQuery = 'name != null';
     }
     // If no specific query was built, use a generic one
     if (!driveQuery) {
-        driveQuery = 'name != null';
+        driveQuery = 'trashed=false';
     }
     return {
         query: driveQuery,
