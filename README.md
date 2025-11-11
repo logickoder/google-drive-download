@@ -12,7 +12,7 @@ Service Account authentication.
 ## Features
 
 - Download files from Google Drive by filename or file ID
-- Support for wildcard patterns in filenames
+- Support for wildcard patterns in filenames ([learn more](WILDCARD.md))
 - Two authentication methods: OAuth2 (recommended) and Service Account (legacy)
 - Secure handling of credentials and tokens
 
@@ -89,17 +89,17 @@ preferred for new implementations.
 
 ## Inputs
 
-| Name           | Description                                                  | Required | Default   |
-| -------------- | ------------------------------------------------------------ | -------- | --------- |
-| `authType`     | Authentication type: `oauth` or `service`                    | No       | `service` |
-| `credentials`  | Service account credentials JSON (required for service auth) | No\*     |           |
-| `clientId`     | OAuth2 client ID (required for oauth auth)                   | No\*     |           |
-| `clientSecret` | OAuth2 client secret (required for oauth auth)               | No\*     |           |
-| `refreshToken` | OAuth2 refresh token (required for oauth auth)               | No\*     |           |
-| `filename`     | Name of the file to download. Supports wildcards             | No\*\*   |           |
-| `fileId`       | ID of the specific file to download                          | No\*\*   |           |
-| `folderId`     | ID of the parent folder to search in                         | Yes      |           |
-| `destination`  | Path to save the downloaded file(s)                          | Yes      |           |
+| Name           | Description                                                     | Required | Default   |
+| -------------- | --------------------------------------------------------------- | -------- | --------- |
+| `authType`     | Authentication type: `oauth` or `service`                       | No       | `service` |
+| `credentials`  | Service account credentials JSON (required for service auth)    | No\*     |           |
+| `clientId`     | OAuth2 client ID (required for oauth auth)                      | No\*     |           |
+| `clientSecret` | OAuth2 client secret (required for oauth auth)                  | No\*     |           |
+| `refreshToken` | OAuth2 refresh token (required for oauth auth)                  | No\*     |           |
+| `filename`     | Name of the file to download. Supports [wildcards](WILDCARD.md) | No\*\*   |           |
+| `fileId`       | ID of the specific file to download                             | No\*\*   |           |
+| `folderId`     | ID of the parent folder to search in                            | Yes      |           |
+| `destination`  | Path to save the downloaded file(s)                             | Yes      |           |
 
 \* Required based on authentication type \*\* Either `filename` or `fileId` must
 be provided
